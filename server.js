@@ -4,22 +4,19 @@ const morgan = require("morgan");
 const httpErrors = require("http-errors");
 require("dotenv").config();
 
-const connectDB = require ("./dbConnect/db");
+const connectDB = require("./config/db");
 const db = require("./models");
 const ApiRouter = require("./routes/api.route");
 
 const app = express();
 app.use(bodyParser.json());
-app.use(morgan("dev"));
+app.use(morgan("dev")); 
 
 app.get("/", async (req, res, next) => {
     res.status(200).send({ message: "Welcome to Restful API server" });
 });
 
-//Recieve request 
 app.use("/api", ApiRouter);
-
-
 
 app.use(async (req, res, next) => {
     next(httpErrors.BadRequest("Bad request"));
