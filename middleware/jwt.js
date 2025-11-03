@@ -9,3 +9,4 @@ const generateAccessToken = (account) =>
     );
 
 module.exports = { generateAccessToken };
+

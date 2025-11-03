@@ -9,7 +9,6 @@ const connectDB = require("./config/db");
 const db = require("./models");
 const ApiRouter = require("./routes/api.route");
 const AuthRouter = require("./routes/auth.route");
-const ViewsRouter = require("./routes/views.route");
 
 const app = express();
 // bodyParser là middleware để parse body request
@@ -32,7 +31,6 @@ app.get("/", async (req, res, next) => {
 
 app.use("/api", ApiRouter);
 app.use('/auth', AuthRouter);
-app.use('/views', ViewsRouter);
 
 app.use(async (req, res, next) => {
     next(httpErrors.BadRequest("Bad request"));

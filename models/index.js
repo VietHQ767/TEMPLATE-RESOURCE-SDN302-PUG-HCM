@@ -5,7 +5,6 @@ const Resident = require("./resident.model.js");
 const db = {}
 
 db.Account = Account;
-db.Apartment = Apartment;
-db.Resident = Resident;
+
 
 module.exports = db;
