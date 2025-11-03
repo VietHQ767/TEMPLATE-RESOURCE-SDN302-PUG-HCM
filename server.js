@@ -10,7 +10,9 @@ const ApiRouter = require("./routes/api.route");
 
 const app = express();
 app.use(bodyParser.json());
-app.use(morgan("dev")); 
+app.use(morgan("dev"));
+app.set("views engine", "pug"); // Set view engine to pug
+app.set("views", "./views"); // Set views directory
 
 app.get("/", async (req, res, next) => {
     res.status(200).send({ message: "Welcome to Restful API server" });
