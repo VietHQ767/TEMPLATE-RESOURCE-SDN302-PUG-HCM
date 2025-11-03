@@ -1,0 +1,115 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    title Sign in
+    // Bootstrap CSS
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css")
+
+    style.
+      body {
+        font-family: system-ui, Arial;
+        margin: 0;
+        height: 100vh;
+        background: #f7f7f7;
+      }
+      
+
+  body
+    header 
+        h1 Resident 
+        button(type="button", onclick="window.location.href='/auth/signin'") Logout
+    
+    main
+         div 
+            button(type="button", class="btn btn-primary", data-bs-toggle="modal", data-bs-target="#addModal") Add Resident
+            div.container
+                .row
+                    each resident in residents
+                        .col-md-4.mb-3
+                            .card.h-100
+                                .card-body
+                                    h5.card-title= resident.residentName
+                                    p.card-text= resident.residentDescription
+                                    p.mb-1 Apartment: #{resident.apartment && resident.apartment.apartmentName}
+                                    p.mb-1 Floor: #{resident.floor}
+                                    p.mb-1 Year of Birth: #{resident.yOB}
+                                    p.mb-2 Ownership: #{resident.isOwned ? 'Owned' : 'Rented'}
+                                    .d-flex.gap-2
+                                        a.btn.btn-outline-secondary(href=`/views/resident/${resident._id}`) View
+                                        button.btn.btn-outline-danger(type="button", onclick=`onDeleteResident('${resident._id}')`) Delete
+
+    // Add Modal
+    .modal.fade#addModal(tabindex="-1", aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title Add Resident
+            button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+          .modal-body
+            form#addForm
+              .mb-3
+                label.form-label(for="residentName") Resident Name
+                input.form-control#residentName(type="text", required, pattern="[A-Za-z ]+", placeholder="Letters and spaces only")
+              .mb-3
+                label.form-label(for="residentDescription") Description
+                textarea.form-control#residentDescription(required)
+              .mb-3
+                label.form-label(for="floor") Floor (1-40)
+                input.form-control#floor(type="number", min="1", max="40", required)
+              .mb-3
+                label.form-label(for="yOB") Age (1-85)
+                input.form-control#yOB(type="number", min="1", max="85", required)
+              .form-check.mb-3
+                input.form-check-input#isOwned(type="checkbox")
+                label.form-check-label(for="isOwned") Is Owned
+              .mb-3
+                label.form-label(for="apartmentId") Apartment
+                select.form-select#apartmentId(required)
+                  option(value="") -- Select Apartment --
+                  each a in apartments
+                    option(value=a._id)= a.apartmentName
+          .modal-footer
+            button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
+            button.btn.btn-primary(type="button", onclick="onSubmitAdd()") Save
+        
+
+    // Bootstrap JS (optional, for components needing JS)
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js")
+    script.
+      async function onSubmitAdd() {
+        const name = document.getElementById('residentName').value.trim();
+        const desc = document.getElementById('residentDescription').value.trim();
+        const floor = Number(document.getElementById('floor').value);
+        const age = Number(document.getElementById('yOB').value);
+        const isOwned = document.getElementById('isOwned').checked;
+        const apartmentId = document.getElementById('apartmentId').value;
+
+        const nameOk = /^[A-Za-z ]+$/.test(name);
+        if (!nameOk) { alert('Name must contain only letters and spaces'); return; }
+        if (!(floor >= 1 && floor <= 40)) { alert('Floor must be 1-40'); return; }
+        if (!(age >= 1 && age <= 85)) { alert('Age must be 1-85'); return; }
+        if (!apartmentId) { alert('Please select an apartment'); return; }
+
+        const res = await fetch('/views/resident', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ residentName: name, residentDescription: desc, floor, yOB: age, isOwned, apartmentId })
+        });
+        if (res.ok) { window.location.reload(); }
+        else {
+          const data = await res.json().catch(() => ({}));
+          alert(data.message || 'Failed to create resident');
+        }
+      }
+
+      async function onDeleteResident(id) {
+        if (!confirm('Delete this resident?')) return;
+        const res = await fetch(`/views/resident/${id}`, { method: 'DELETE' });
+        if (res.ok) { window.location.reload(); }
+        else {
+          const data = await res.json().catch(() => ({}));
+          alert(data.message || 'Failed to delete');
+        }
+      }
