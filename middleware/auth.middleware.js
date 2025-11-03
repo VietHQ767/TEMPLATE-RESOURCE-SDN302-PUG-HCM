@@ -18,4 +18,21 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-module.exports = { verifyToken };
+
+const verifyCookieToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        // return res.redirect('/auth/signin');
+        return res.status(401).json({ message: 'No token provided' });
+    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, customer) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.customer = customer;
+        next();
+    });
+};
+
+
+module.exports = { verifyToken, verifyCookieToken };

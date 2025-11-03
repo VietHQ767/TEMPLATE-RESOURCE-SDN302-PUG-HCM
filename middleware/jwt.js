@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 
 // Tạo JWT token cho customer
-const generateAccessToken = (customers) =>
+const generateAccessToken = (account) =>
     jwt.sign(
-        { id: customers._id || customers.id },
+        { id: account._id || account.id },
         process.env.JWT_SECRET,
-        { expiresIn: '3d' }
+        { expiresIn: '1h' }
     );
 
 module.exports = { generateAccessToken };
