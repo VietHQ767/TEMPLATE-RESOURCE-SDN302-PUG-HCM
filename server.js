@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use(morgan("dev"));
-app.set("views engine", "pug"); // Set view engine to pug
+app.set("view engine", "pug"); // Set view engine to pug
 // views engine là template engine để render view
 
 app.set("views", "./views"); // Set views directory

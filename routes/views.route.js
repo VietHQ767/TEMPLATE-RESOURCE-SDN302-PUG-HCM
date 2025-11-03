@@ -45,10 +45,18 @@ ViewsRouter.post('/resident', async (req, res, next) => {
             return res.status(400).json({ message: 'Resident already exists' });
         }
         const now = new Date().getFullYear();
-        const newYOB = now - Number(yOB);
-        const resident = new db.Resident({ residentName, residentDescription, floor, yOB: newYOB, isOwned, apartment: apartmentId });
+        const age = Number(yOB);
+        const newYOB = now - age;
+        const resident = new db.Resident({
+            residentName,
+            residentDescription,
+            floor: Number(floor),
+            yOB: newYOB,
+            isOwned: Boolean(isOwned),
+            apartment: apartmentId
+        });
         await resident.save();
-        return res.redirect('/views/resident');
+        return res.status(201).json({ message: 'Resident created' });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
@@ -60,19 +68,31 @@ ViewsRouter.put('/resident/:id', async (req, res, next) => {
         const { id } = req.params;
         const { residentName, residentDescription, floor, yOB, isOwned, apartmentId } = req.body;
         const update = {
-            residentName: residentName,
-            residentDescription: residentDescription,
-            floor: floor,
-            yOB: yOB,
-            isOwned: Boolean(isOwned),
+            residentName,
+            residentDescription,
+            floor: floor !== undefined ? Number(floor) : undefined,
+            isOwned: isOwned !== undefined ? Boolean(isOwned) : undefined,
             apartment: apartmentId
         }
-        if (yOB) {
-            const now = new Date().getFullYear(); // để lấy năm hiện tại
-            update.yOB = now - Number(age); // để lấy tuổi hiện tại
+        if (yOB !== undefined) {
+            const now = new Date().getFullYear();
+            update.yOB = now - Number(yOB); // convert age to year of birth
         }
+        // Remove undefined fields so we only update provided values
+        Object.keys(update).forEach(key => update[key] === undefined && delete update[key]);
         await db.Resident.findByIdAndUpdate(id, update);
         return res.status(200).json({ message: 'Resident updated successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+})
+
+// delete
+ViewsRouter.delete('/resident/:id', async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await db.Resident.findByIdAndDelete(id);
+        return res.status(200).json({ message: 'Resident deleted successfully' });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
