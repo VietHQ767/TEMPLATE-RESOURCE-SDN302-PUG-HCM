@@ -18,7 +18,7 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-// Dùng cho trường hợp lưu cookie dùm Frontend
+
 const verifyCookieToken = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
